@@ -14,6 +14,11 @@ namespace CxxWeb
         SSlContext(  SSL_METHOD * method , std::string path_cert, std::string path_private_key,std::string path_ca = "");
         
         bool  init();
+        void  set_methode(SSL_METHOD * method);
+        void  set_path_cert(std::string path_cert);
+        void  set_path_private_key(std::string path_private_key);
+        void  set_path_ca(std::string path_ca);
+        
         virtual ~SSlContext();
     private:
         std::string path_cert;

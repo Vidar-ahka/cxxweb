@@ -40,4 +40,21 @@ namespace CxxWeb
         return true;
     }
 
+    void  SSlContext::set_methode(SSL_METHOD * method)
+    {
+        this->method = method;
+    }
+    void  SSlContext::set_path_cert(std::string path_cert)
+    {
+        this->path_cert = path_cert;
+    }
+    void  SSlContext::set_path_private_key(std::string path_private_key)
+    {
+        this->path_private_key = path_private_key;
+    }
+    void  SSlContext::set_path_ca(std::string path_ca)
+    {
+        this->path_ca = path_ca;
+    }
+
 }
