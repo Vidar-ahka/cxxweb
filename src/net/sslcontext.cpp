@@ -55,7 +55,10 @@ namespace CxxWeb
         return *this;
     }
 
-
+    SSL_CTX * SSLContext:: getCTX()
+    {
+        return ctx;
+    }
     bool  SSLContext::init(){
 
         SSL_library_init();                 

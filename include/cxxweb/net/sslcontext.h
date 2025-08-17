@@ -32,6 +32,8 @@ enum class SSLMode
         void  set_path_cert(const std::string & path_cert);
         void  set_path_private_key(const std::string & path_private_key);
         void  set_path_ca(const std::string& path_ca);
+        SSL_CTX * getCTX();
+
         
     private:
         const SSL_METHOD* getMethod(SSLMode mode);
@@ -39,7 +41,7 @@ enum class SSLMode
         std::string path_cert;
         std::string path_private_key;
         std::string path_ca;
-        SSL_CTX    * ctx;    
+        SSL_CTX    * ctx = NULL;    
         SSLMode mode;
     };
 }
