@@ -26,11 +26,9 @@ public:
     bool stop() override;
     
 protected:
-    bool init_socket();
-    bool init_ssl();
-    int socket_m;
-    uint16_t port ;
-    sockaddr_in sa_serv;
+    
+
+ 
  
 };
 
