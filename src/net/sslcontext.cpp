@@ -12,13 +12,50 @@ namespace CxxWeb
 
     }
     
-  
-
-
     SSLContext :: ~SSLContext()
     {
           SSL_CTX_free(ctx);
     }
+    
+
+    SSLContext::SSLContext(SSLContext & other): 
+    mode(other.mode),
+    path_cert(other.path_cert), 
+    path_private_key(other.path_private_key),
+    path_ca(other.path_ca)
+    {
+        ctx = SSL_CTX_new(const_cast<SSL_METHOD*>(getMethod(other.mode)));
+    }
+    SSLContext::SSLContext(SSLContext && other)
+    {
+        mode = std::move(other.mode);
+        path_cert =  std::move(other.path_cert);
+        path_private_key =  std::move(other.path_private_key);
+        path_ca =  std::move(other.path_ca);
+        ctx  = other.ctx;
+        other.ctx = nullptr;
+        
+    }
+    SSLContext & SSLContext::operator =(SSLContext & other)
+    {
+        if(this!= &other)
+        {
+            SSLContext ssl(other);
+            std::swap(ssl,*this);
+        }
+        return *this;
+    }
+    SSLContext & SSLContext::operator =(SSLContext &&  other)
+    {
+        if(this!= &other)
+        {
+            SSLContext ssl(other);
+            std::swap(ssl,*this);
+        }
+        return *this;
+    }
+
+
     bool  SSLContext::init(){
 
         SSL_library_init();                 
