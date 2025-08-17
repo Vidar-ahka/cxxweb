@@ -4,7 +4,11 @@ namespace CxxWeb
 {
     HttpsServer::HttpsServer(std::string  path_cert,  std::string   path_private_key,  std::string  path_ca )
     {
-        
+        std::unique_ptr<SSLContext> ssl =  std::make_unique<SSLContext>();
+        ssl->set_mode(SSLMode::TLSv1_2);
+        ssl->set_path_cert(path_cert);
+        ssl->set_path_private_key(path_private_key);
+        ssl->set_path_ca(path_ca);
     }
     HttpsServer::~HttpsServer()
     {
@@ -13,6 +17,8 @@ namespace CxxWeb
     bool HttpsServer::start(uint16_t port) 
     {
         this->port = port;
+        ssl->init();
+        init_socket();
         return true;
 
     }
