@@ -86,6 +86,16 @@ namespace CxxWeb
         return true;
     }
 
+    const SSL_METHOD* SSLContext::getMethod(SSLMode mode)
+    {
+         switch (mode) {
+        case SSLMode::Server:  return TLS_server_method();
+        case SSLMode::Client:  return TLS_client_method();
+        case SSLMode::TLSv1_2: return TLSv1_2_server_method();
+        case SSLMode::Legacy:  return SSLv23_method(); // устаревший
+        default: return TLS_server_method();
+    }
+    }
     void  SSLContext::set_mode( SSLMode mode)
     {
         this->mode = mode;
