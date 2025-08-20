@@ -12,8 +12,46 @@ ByteArray::ByteArray() noexcept
 
 ByteArray:: ~ByteArray()
 {
+
+}
+
+
+ByteArray::ByteArray( const ByteArray & other) noexcept
+{
+ 
+    data_ptr = other.data_ptr;
     
 }
+ByteArray::ByteArray(ByteArray && byte) noexcept :
+    data_ptr(std::move(byte.data_ptr))
+{
+
+}
+
+ByteArray::~ByteArray()
+{
+
+}
+ByteArray &  ByteArray::operator=(const ByteArray & other) noexcept
+{
+    if(this !=  &other)
+    {
+        this->write( other);
+    }
+    return *this;
+}
+
+ByteArray &  ByteArray::operator=(ByteArray && other)noexcept
+{
+    if(this != &other )
+    {
+        data_ptr = std::move(other.data_ptr);
+    }
+    return *this;
+
+}
+
+
 
 void  ByteArray::write(const ByteArray &byte)
 {

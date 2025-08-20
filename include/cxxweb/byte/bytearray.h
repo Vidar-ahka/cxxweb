@@ -17,6 +17,11 @@ namespace CxxWeb
         ByteArray() noexcept;
         ~ByteArray();
 
+        ByteArray(const ByteArray & byte) noexcept;
+        ByteArray(ByteArray && byte) noexcept;
+        ByteArray &  operator=( const ByteArray & byte)  noexcept;
+        ByteArray &  operator=(ByteArray && byte) noexcept;
+
         void  write(const ByteArray &byte);
         void  write(const char *  byte);
         void  write(const char *  byte , size_t size);
