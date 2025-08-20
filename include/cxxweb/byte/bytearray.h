@@ -16,6 +16,12 @@ namespace CxxWeb
     public:
         ByteArray() noexcept;
         ~ByteArray();
+
+        void  write(const ByteArray &byte);
+        void  write(const char *  byte);
+        void  write(const char *  byte , size_t size);
+
+
         void  reserve(size_t new_capacity);
         void  resize(size_t new_size);
         bool  empty() const;
@@ -24,6 +30,7 @@ namespace CxxWeb
         const  char * data() const;
         
     private:
+        bool copy_write (size_t & size);
         using bytes  = std::vector<char>;
         std::shared_ptr<bytes> data_ptr;
     };

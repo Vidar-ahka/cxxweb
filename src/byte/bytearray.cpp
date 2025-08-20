@@ -3,6 +3,32 @@
 namespace CxxWeb
 {
     
+
+void  ByteArray::write(const ByteArray &byte)
+{
+    if(this==&byte)
+    {
+        return;
+    }
+    data_ptr  = byte.data_ptr;
+}
+void  ByteArray::write(const char *  byte)
+{
+    write(byte,strlen(byte));
+}    
+
+void  ByteArray::write(const char *  byte , size_t size)
+{   
+    if(size == 0 )
+    {
+        return;
+    }
+    copy_write(size);
+    data_ptr->assign(byte,byte+size);
+}
+
+
+
 void  ByteArray::reserve(size_t new_capacity)
 {
     if(new_capacity != data_ptr->capacity())
@@ -40,6 +66,24 @@ const char * ByteArray::data()  const
 {
     return data_ptr->data();
 }
+
+bool ByteArray::copy_write(size_t & size)
+{
+    if(data_ptr.use_count()>1)
+    {
+        std::shared_ptr<bytes> new_data_ptr = std::make_shared<bytes>();
+        if(size<data_ptr->capacity())
+        {
+            new_data_ptr->reserve(data_ptr->capacity());    
+        }
+        
+        data_ptr = new_data_ptr;
+        return true;
+    }
+    return false;
+}    
+
+
 
 
 }
