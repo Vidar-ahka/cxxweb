@@ -21,6 +21,11 @@ namespace CxxWeb
         void  write(const char *  byte);
         void  write(const char *  byte , size_t size);
 
+        void  append(const ByteArray & byte);
+        void  append(const  char * byte);
+        void  append(const  char * byte, size_t  size);
+        void  push_back(char val);
+
 
         void  reserve(size_t new_capacity);
         void  resize(size_t new_size);
@@ -31,6 +36,7 @@ namespace CxxWeb
         
     private:
         bool copy_write (size_t & size);
+        bool copy_append(size_t & size);
         using bytes  = std::vector<char>;
         std::shared_ptr<bytes> data_ptr;
     };
