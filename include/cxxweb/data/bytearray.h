@@ -15,7 +15,7 @@ namespace CxxWeb
 
     public:
         ByteArray() noexcept;
-        ~ByteArray();
+        ~ByteArray() = default;
 
         ByteArray(const ByteArray & byte) noexcept;
         ByteArray(ByteArray && byte) noexcept;

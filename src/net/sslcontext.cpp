@@ -9,7 +9,7 @@ namespace CxxWeb
     path_private_key(path_private_key),
     path_ca(path_ca)
     {
-
+        
     }
     
     SSLContext :: ~SSLContext()
@@ -61,8 +61,10 @@ namespace CxxWeb
     }
     bool  SSLContext::init(){
 
-        SSL_library_init();                 
-        SSL_load_error_strings(); 
+         SSL_library_init();
+    OpenSSL_add_all_algorithms();  
+    SSL_load_error_strings();
+    ERR_load_crypto_strings();  
           
         ctx = SSL_CTX_new(const_cast<SSL_METHOD*>(getMethod(mode)));
        
@@ -73,15 +75,11 @@ namespace CxxWeb
            SSL_CTX_free(ctx);
            return false;
         }
-        if(!SSL_CTX_use_PrivateKey_file(ctx,path_private_key.c_str(),SSL_FILETYPE_PEM))
+        if(SSL_CTX_use_PrivateKey_file(ctx,path_private_key.c_str(),SSL_FILETYPE_PEM)<=0)
         {
             std::cout<<"\n! not privete key \n" ;
             ERR_print_errors_fp(stderr);        
             return false;
-        }
-        if(!SSL_CTX_load_verify_locations(ctx, this->path_ca.c_str(),NULL))
-        {
-            std::cout<< "\n !  load verify location \n"  ;
         }
         return true;
     }

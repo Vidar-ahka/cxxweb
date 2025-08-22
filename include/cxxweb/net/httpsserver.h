@@ -7,7 +7,7 @@
 #include"sys/socket.h"
 #include"arpa/inet.h"
 
-
+#include"sslconnection.h"
 #include"unistd.h"
 #include"sslcontext.h"
 #include"iserver.h"
@@ -31,6 +31,9 @@ protected:
     int socket_m;
     uint16_t port ;
     sockaddr_in sa_serv;
+
+    std::unique_ptr<SSLContext> ssl;
+    bool work;
  
 };
 

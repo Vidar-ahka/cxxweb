@@ -10,12 +10,6 @@ ByteArray::ByteArray() noexcept
 }
     
 
-ByteArray:: ~ByteArray()
-{
-
-}
-
-
 ByteArray::ByteArray( const ByteArray & other) noexcept
 {
  
@@ -28,10 +22,7 @@ ByteArray::ByteArray(ByteArray && byte) noexcept :
 
 }
 
-ByteArray::~ByteArray()
-{
 
-}
 ByteArray &  ByteArray::operator=(const ByteArray & other) noexcept
 {
     if(this !=  &other)
@@ -119,8 +110,10 @@ void  ByteArray::push_back(char val)
 
 
 
-
-
+void  ByteArray::resize(size_t new_size)
+{
+    data_ptr->resize(new_size);
+}
 void  ByteArray::reserve(size_t new_capacity)
 {
     if(new_capacity != data_ptr->capacity())

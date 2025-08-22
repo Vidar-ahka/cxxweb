@@ -17,9 +17,52 @@ namespace CxxWeb
     bool HttpsServer::start(uint16_t port) 
     {
         this->port = port;
+        if(!ssl)
+        {
+            std::cout <<"ssl false ";
+            return false;
+        }
         ssl->init();
+   
         init_socket();
+        fd_set readfds; 
+        FD_ZERO(&readfds);
+        FD_SET(socket_m, &readfds);
+        bool cet = true;
+
+     
+         while(work)
+        { 
+            try
+            {
+                
+            SSLConnection con(socket_m,ssl->getCTX());
+            if(!con.is_valid())
+            {
+                std:: cout <<"false \n";
+                continue;;
+            }
+   
+            ByteArray byte =  con.readall();
+            std::cout << byte.data();
+            std::cout <<"\n";
+            ByteArray send_byte;
+            send_byte.append("tamerlan");
+            con.send(send_byte);
+
+            cet = !cet;
+            }
+            catch(std::string   str)
+            {
+                std::cout <<str<<'\n';
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
+            }
+        }
         return true;
+
 
     }
     
