@@ -8,6 +8,7 @@ namespace CxxWeb
     public:
         virtual ~IWriter() = default;
         virtual size_t  write(ByteArray byte);
+        virtual size_t  write(const std::string & str);       
     };
 }
 #endif
