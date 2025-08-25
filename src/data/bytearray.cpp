@@ -2,18 +2,15 @@
 
 namespace CxxWeb
 {
-
-
 ByteArray::ByteArray() noexcept
 {
    data_ptr = std::make_shared<bytes>();
+
 }
-ByteArray::ByteArray(const char * data)
+ByteArray::ByteArray(const char * data) : ByteArray()   
 {
     write(data);
 }
-
-
 
 
 ByteArray::ByteArray( const ByteArray & other) noexcept
@@ -22,16 +19,18 @@ ByteArray::ByteArray( const ByteArray & other) noexcept
     data_ptr = other.data_ptr;
     
 }
-ByteArray::ByteArray(ByteArray && byte) noexcept :
-    data_ptr(std::move(byte.data_ptr))
-{
 
+ByteArray::ByteArray(ByteArray && byte) noexcept 
+{
+        data_ptr = byte.data_ptr;
+        byte.data_ptr = NULL;
 }
 
 ByteArray::~ByteArray()
 {
 
 }
+
 ByteArray &  ByteArray::operator=(const ByteArray & other) noexcept
 {
     if(this !=  &other)
@@ -55,7 +54,7 @@ ByteArray &  ByteArray::operator=(ByteArray && other)noexcept
 
 void  ByteArray::write(const ByteArray &byte)
 {
-    if(this==&byte)
+    if(!data_ptr||this==&byte)
     {
         return;
     }
@@ -68,7 +67,7 @@ void  ByteArray::write(const char *  byte)
 
 void  ByteArray::write(const char *  byte , size_t size)
 {   
-    if(size == 0 )
+    if(!data_ptr||size == 0 )
     {
         return;
     }
@@ -81,7 +80,7 @@ void  ByteArray::write(const char *  byte , size_t size)
 
 void  ByteArray::append( const ByteArray & byte)
 { 
-    if(byte.empty())
+    if(!data_ptr||byte.empty())
     {
         return;
     }
@@ -97,7 +96,8 @@ void  ByteArray::append(const char * byte)
 
 void  ByteArray::append(const char * byte, size_t  size)
 {
-    if(size==0)
+
+    if(!data_ptr||size==0)
     {
         return ;
     }
@@ -114,7 +114,6 @@ void  ByteArray::push_back(char val)
         copy_append(s);
     }
     data_ptr->push_back(val);
-    
 }
 
 
@@ -123,6 +122,10 @@ void  ByteArray::push_back(char val)
 
 void  ByteArray::reserve(size_t new_capacity)
 {
+    if(!data_ptr)
+    {
+        return ;
+    }
     if(new_capacity != data_ptr->capacity())
     {    
         if(data_ptr.use_count()>1)
@@ -144,18 +147,34 @@ void  ByteArray::reserve(size_t new_capacity)
 
 bool  ByteArray::empty() const
 {
+    if(!data_ptr)
+    {
+        return false;
+    }
     return  data_ptr->empty();
 }
 size_t ByteArray::size()const
 {
+    if(!data_ptr)
+    {
+        return 0;
+    }
     return data_ptr->size();
 }
 size_t ByteArray::capacity()const
 {
+    if(!data_ptr)
+    {
+        return 0;
+    }
     return  data_ptr->capacity();
 }
 const char * ByteArray::data()  const 
 {
+    if(!data_ptr)
+    {
+        return nullptr;
+    }
     return data_ptr->data();
 }
 
@@ -177,6 +196,7 @@ bool ByteArray::copy_write(size_t & size)
 
 bool ByteArray::copy_append(size_t & size)
 {
+    
     if(data_ptr.use_count()>1)
     {
         std::shared_ptr<bytes> new_data_ptr = std::make_shared<bytes>();
