@@ -1,4 +1,4 @@
-#include"cxxweb/byte/bytearray.h"
+#include"cxxweb/data/bytearray.h"
 
 namespace CxxWeb
 {
@@ -8,12 +8,12 @@ ByteArray::ByteArray() noexcept
 {
    data_ptr = std::make_shared<bytes>();
 }
-    
-
-ByteArray:: ~ByteArray()
+ByteArray::ByteArray(const char * data)
 {
-
+    write(data);
 }
+
+
 
 
 ByteArray::ByteArray( const ByteArray & other) noexcept
