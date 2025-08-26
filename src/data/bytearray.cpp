@@ -117,30 +117,50 @@ void  ByteArray::push_back(char val)
 }
 
 
-
+  void  ByteArray::resize(size_t new_size)
+  {
+    if(!data_ptr || new_size == data_ptr->size())
+    { 
+        return ;  
+    }
+   
+    if(data_ptr.use_count()>1)
+    {
+        std::shared_ptr<bytes>  new_data_ptr  = std::make_shared<bytes>();
+        new_data_ptr->resize(new_size);
+        std::copy(data_ptr->begin(),
+        data_ptr->begin()+ std::min(new_size,data_ptr->size()),new_data_ptr->begin());        
+        data_ptr  = new_data_ptr;
+    }
+    else 
+    {
+        data_ptr->resize(new_size);
+    }
+     
+  }
 
 
 void  ByteArray::reserve(size_t new_capacity)
 {
-    if(!data_ptr)
+    if(!data_ptr || new_capacity == data_ptr->capacity())
     {
         return ;
     }
-    if(new_capacity != data_ptr->capacity())
-    {    
-        if(data_ptr.use_count()>1)
-        {
-            std::shared_ptr<bytes> new_data_ptr  = std::make_shared<bytes>();
-            new_data_ptr->reserve(new_capacity);
-            new_data_ptr->assign(data_ptr->begin(), 
-            (data_ptr->size()<=new_capacity ? data_ptr->end() : data_ptr->begin()+ new_capacity));
-            data_ptr =  new_data_ptr ;
-        }   
-        else 
-        {
-            data_ptr->reserve(new_capacity);
-        }
+
+    
+    if(data_ptr.use_count()>1)
+    {
+        std::shared_ptr<bytes> new_data_ptr  = std::make_shared<bytes>();
+        new_data_ptr->reserve(new_capacity);
+        new_data_ptr->assign(data_ptr->begin(), 
+        data_ptr->begin() + std::min(data_ptr->size(),new_capacity));
+        data_ptr =  new_data_ptr ;
+    }   
+    else 
+    {
+        data_ptr->reserve(new_capacity);
     }
+    
     
 }
 
