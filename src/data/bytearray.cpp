@@ -50,6 +50,23 @@ ByteArray &  ByteArray::operator=(ByteArray && other)noexcept
 
 }
 
+char & ByteArray::operator[](size_t  index)
+{
+    if(data_ptr.use_count()>1)
+    {
+        data_ptr  = std::make_shared<bytes>(*data_ptr);
+    }
+    return data_ptr->data()[index];  
+}
+char &  ByteArray::operator[](size_t & index)
+{
+    if(data_ptr.use_count()>1)
+    {
+        data_ptr  = std::make_shared<bytes>(*data_ptr);
+    }
+    return data_ptr->data()[index];
+}
+        
 
 
 void  ByteArray::write(const ByteArray &byte)

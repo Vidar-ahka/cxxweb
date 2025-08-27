@@ -23,6 +23,9 @@ namespace CxxWeb
         ByteArray(ByteArray && byte) noexcept;
         ByteArray &  operator=( const ByteArray & byte)  noexcept;
         ByteArray &  operator=(ByteArray && byte) noexcept;
+        char & operator[](size_t  index);
+        char & operator[](size_t & index);
+        
 
         void  write(const ByteArray &byte);
         void  write(const char *  byte);
@@ -34,9 +37,10 @@ namespace CxxWeb
         void  push_back(char val);
 
 
-        void  reserve(size_t new_capacity);
-        void  resize(size_t new_size);
-        bool  empty() const;
+
+        void   reserve(size_t new_capacity);
+        void   resize(size_t new_size);
+        bool   empty() const;
         size_t size() const;
         size_t capacity()    const;
         const  char * data() const;
