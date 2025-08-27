@@ -77,6 +77,63 @@ namespace CxxWeb
         return true;
     }
 
+
+    ByteArray  SSLConnection::readAll() 
+    {
+        try
+        {
+            if(!ssl_)
+            {
+                throw std::runtime_error("SSLConnection::readAll called on invalid SSL connection\n");
+            }
+            ByteArray byte;
+            byte.reserve(8193);
+            int count = 0 ;
+            do
+            {
+                char buffer[4096];
+                count  = SSL_read(ssl_,buffer,4096);
+                byte.append(buffer);
+
+            }while(count>=4096);
+            return byte;
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+            return ByteArray();
+        }
+        
+    }
+    ByteArray  SSLConnection::read(size_t read_size) 
+    {
+        try
+        {
+            if(!ssl_)
+            {
+                throw std::runtime_error("SSLConnection::read called on invalid SSL connection\n");
+            }
+            if(read_size == 0)
+            {
+                return ByteArray();
+            }
+            ByteArray byte;
+            byte.resize(read_size);
+            int  count = SSL_read(ssl_,const_cast<char*>(byte.data()),read_size);
+            byte.resize(count);        
+            
+            return byte;        
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+            return ByteArray();
+        }
+        
+       
+    }
+    
+
    
    
 }
