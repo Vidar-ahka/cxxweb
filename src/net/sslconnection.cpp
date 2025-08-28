@@ -72,6 +72,7 @@ namespace CxxWeb
         {
             SSL_shutdown(ssl_);
             SSL_free(ssl_);
+            ssl_ = nullptr;
         }
         close(socket_);
         return true;
@@ -82,10 +83,8 @@ namespace CxxWeb
     {
         try
         {
-            if(!ssl_)
-            {
-                throw std::runtime_error("SSLConnection::readAll called on invalid SSL connection\n");
-            }
+            check_fun_try("readAll");
+            
             ByteArray byte;
             byte.reserve(8193);
             int count = 0 ;
@@ -109,10 +108,7 @@ namespace CxxWeb
     {
         try
         {
-            if(!ssl_)
-            {
-                throw std::runtime_error("SSLConnection::read called on invalid SSL connection\n");
-            }
+            check_fun_try("read");
             if(read_size == 0)
             {
                 return ByteArray();
@@ -132,7 +128,72 @@ namespace CxxWeb
         
        
     }
+
+    size_t  SSLConnection::write(ByteArray byte) 
+    {
+        try
+        {
+            check_fun_try("write");
+            
+            if(byte.empty())
+            {
+               return 0;
+            }
+            int count =   SSL_write(ssl_,byte.data(),byte.size());
+            return count;
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+    }
+    size_t  SSLConnection::write(const std::string & str)
+    {
+        try
+        {
+            check_fun_try("write");
+
+            if(str.empty())
+            {
+               return 0;
+            }
+            int count =   SSL_write(ssl_,str.c_str(),str.size());
+            return count;
+        }
+        catch(const std::exception& e)
+         {
+            std::cerr << e.what() << '\n';
+        }
+        
+    }
     
+    int  SSLConnection::getSocket() const  
+    {
+        return socket_;
+    }
+    bool  SSLConnection::is_valid()  const  
+    {
+        return  socket_>-1 &&  ssl_valid();  
+    }
+    bool SSLConnection::ssl_valid() const
+    {
+        return ssl_ && SSL_get_current_cipher(ssl_) != nullptr 
+        && SSL_get_fd(ssl_) > -1 && SSL_is_init_finished(ssl_);
+    }
+
+    void SSLConnection::check_fun_try(std::string  name_fun)
+    {
+        if(socket_<0)
+        {
+            throw std::runtime_error("SSLConnection::" + name_fun+ " called on invalid socket < 0 \n"); 
+
+        }
+        if(!ssl_valid())
+        {
+            throw std::runtime_error("SSLConnection::"+name_fun+" called on invalid SSL connection\n");
+        }
+    }
+       
 
    
    
