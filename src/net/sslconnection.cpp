@@ -18,6 +18,18 @@ namespace CxxWeb
     {
         stop();
     }
+
+    SSLConnection::SSLConnection(SSLConnection && other)
+    {
+        move_from(std::move(other));
+    }   
+    SSLConnection & SSLConnection::operator=(SSLConnection && other)
+    {
+        move_from(std::move(other));
+        return *this;
+    }
+
+
     bool SSLConnection::start(const int & server_socket , SSL_CTX *  ctx)
     {
         stop();
@@ -35,7 +47,9 @@ namespace CxxWeb
             {
                   throw std::runtime_error("SSL context is null");
             }
-            socket_ = accept(server_socket, nullptr, nullptr);
+            
+            len = sizeof(s_addr);
+            socket_ = accept(server_socket,(sockaddr*)&s_addr,&len);
         
             if (socket_ < 0) 
             {
@@ -192,6 +206,21 @@ namespace CxxWeb
         {
             throw std::runtime_error("SSLConnection::"+name_fun+" called on invalid SSL connection\n");
         }
+    }
+       
+    void SSLConnection::move_from(SSLConnection&& other)
+    {
+        server_socket = other.server_socket;
+        ctx = other.ctx;
+        s_addr = other.s_addr;
+        len = other.len;
+        ssl_ = other.ssl_;
+
+        other.server_socket = -1;
+        other.socket_ = -1;
+        other.ctx  = nullptr;
+        other.ssl_ = nullptr;
+
     }
        
 
