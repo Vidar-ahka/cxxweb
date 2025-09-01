@@ -36,6 +36,7 @@ namespace CxxWeb
         void  append(const  char * byte, size_t  size);
         void  push_back(char val);
 
+        ByteArray copy(size_t begin , size_t end);
 
 
         void   reserve(size_t new_capacity);

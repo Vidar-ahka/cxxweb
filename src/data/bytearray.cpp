@@ -133,7 +133,22 @@ void  ByteArray::push_back(char val)
     data_ptr->push_back(val);
 }
 
+ByteArray ByteArray::copy(size_t begin ,size_t end)
+{
+    if(end <= begin || begin >=size())
+    {
+        return ByteArray();
+    }
 
+    else if(begin == 0 && end >= size())
+    {
+        return *this;
+    }
+    
+    ByteArray result;
+    result.data_ptr->assign(data_ptr->begin()+begin, data_ptr->begin()+std::min(data_ptr->size(),end));
+    return result ;
+}        
   void  ByteArray::resize(size_t new_size)
   {
     if(!data_ptr || new_size == data_ptr->size())
