@@ -16,8 +16,8 @@ namespace CxxWeb
         bool open()override;
         bool open(const std::string  & file_path) override;
         bool close() override;
-        ByteArray read(size_t size) override{return ByteArray();}
-        ByteArray readAll() override {return ByteArray();}
+        ByteArray read(size_t size) override;
+        ByteArray readAll() override;
         
         
         bool is_open() const override;
@@ -29,6 +29,9 @@ namespace CxxWeb
         std::string file_path;
         std::ifstream stream;
         size_t size_ {0}; 
+        size_t pos {0};
+        ByteArray data;
+        
     };
 
 }

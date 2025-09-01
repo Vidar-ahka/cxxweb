@@ -31,6 +31,7 @@ namespace CxxWeb
             stream.seekg(0,std::ios::end);
             size_ = stream.tellg();
             stream.seekg(0 , std::ios::beg);
+            data.reserve(size_+1);
             return stream.is_open();
         }
         catch(std::exception & e)
@@ -39,6 +40,50 @@ namespace CxxWeb
             return false;
         }
     }
+
+    ByteArray StaticFileReader::readAll()
+    {
+        
+        if(!is_open())
+        {
+            return ByteArray();
+        }
+        if(data.size()<size_)
+        {
+            size_t pos = data.size() ;
+            data.resize(size_);
+            stream.read(const_cast<char*>(data.data()+pos),size_);
+        }
+
+        return data;
+    } 
+    
+    ByteArray StaticFileReader::read(size_t size)
+    {
+
+        ByteArray tmp;
+        if(!is_open())
+        {
+            return tmp;
+        }
+        if(data.size() < size_)
+        {
+          
+            tmp.resize(size);
+            stream.read(const_cast<char*>(tmp.data()),size);
+            tmp.resize(stream.gcount());
+            data.append(tmp);
+        }
+        else 
+        {
+            tmp =  data.copy(pos,pos+size);
+            pos =  pos+size >=size_ ? 0 : pos+size;
+        }
+        return tmp;
+    } 
+    
+    
+
     bool StaticFileReader::open(const std::string  & file_path)
     {
         
