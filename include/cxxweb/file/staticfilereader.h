@@ -2,15 +2,24 @@
 #define STATICFILEREADER_H
 #include"ifilereader.h"
 #include"fstream"
+#include"memory"
 namespace CxxWeb
 {
     class StaticFileReader : public IFileReader
     {
     public:
         
-        StaticFileReader() = default;
+        StaticFileReader();
+
     
         StaticFileReader(std::string & file_path);
+        StaticFileReader(StaticFileReader & other) = delete;
+        StaticFileReader(StaticFileReader && other);
+        
+        StaticFileReader & operator=(StaticFileReader & other) = delete;
+        StaticFileReader & operator=(StaticFileReader && other);
+        
+        
         ~StaticFileReader();
 
         bool open()override;
@@ -26,8 +35,13 @@ namespace CxxWeb
         size_t size() const override;                 
         std::string  path() const override;
     private:
+        
+        void move(StaticFileReader && other);
+
+
         std::string file_path;
-        std::ifstream stream;
+        std::unique_ptr<std::ifstream> stream;
+        
         size_t size_ {0}; 
         size_t pos {0};
         ByteArray data;
