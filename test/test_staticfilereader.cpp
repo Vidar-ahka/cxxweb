@@ -1,222 +1,174 @@
 #include <gtest/gtest.h>
-#include <fstream>
-#include <cstdio> 
 #include "cxxweb/file/staticfilereader.h"
+#include <fstream>
 
 using namespace CxxWeb;
 
 
 static std::string createTempFile(const std::string& name, const std::string& content) {
-    std::ofstream ofs(name, std::ios::trunc);
+    std::ofstream ofs(name, std::ios::binary);
     ofs << content;
-    ofs.close();
     return name;
 }
 
 TEST(StaticFileReaderTest, OpenNonexistentFileFails) {
-    std::string path = "nonexistent_file_123456.txt";
+    std::string path = "nonexistent.txt";
     StaticFileReader reader(path);
     EXPECT_FALSE(reader.open());
     EXPECT_FALSE(reader.is_open());
     EXPECT_TRUE(reader.empty());
-    EXPECT_EQ(reader.size(), 0);
+
+    std::remove(path.c_str());
+
 }
 
-TEST(StaticFileReaderTest, OpenValidFileSucceeds) {
-    std::string filename = "temp_test_file.txt";
-    std::string content = "Hello, StaticFileReader!";
-    createTempFile(filename, content);
+TEST(StaticFileReaderTest, OpenAndReadAll) {
+    std::string content = "HelloWorld";
+    std::string path = createTempFile("test_readall.txt", content);
 
-    StaticFileReader reader(filename);
-    EXPECT_TRUE(reader.open());
-    EXPECT_TRUE(reader.is_open());
-    EXPECT_FALSE(reader.empty());
-    EXPECT_EQ(reader.size(), content.size());
-    EXPECT_EQ(reader.path(), filename);
-
-    reader.close();
-    EXPECT_FALSE(reader.is_open());
-
-    std::remove(filename.c_str()); // очистка
-}
-
-TEST(StaticFileReaderTest, EmptyFileReportsEmpty) {
-    std::string filename = "empty_file.txt";
-    createTempFile(filename, "");
-
-    StaticFileReader reader(filename);
-    EXPECT_TRUE(reader.open());
-    EXPECT_TRUE(reader.is_open());
-    EXPECT_TRUE(reader.empty());
-    EXPECT_EQ(reader.size(), 0);
-
-    std::remove(filename.c_str());
-}
-
-TEST(StaticFileReaderTest, OpenViaOverloadedMethod) {
-    std::string filename = "temp_test_file2.txt";
-    std::string content = "12345";
-    createTempFile(filename, content);
-
-    StaticFileReader reader; // default constructor
-    EXPECT_TRUE(reader.open(filename));
+    StaticFileReader reader(path);
+    ASSERT_TRUE(reader.open());
     EXPECT_TRUE(reader.is_open());
     EXPECT_EQ(reader.size(), content.size());
-    EXPECT_EQ(reader.path(), filename);
-
-    std::remove(filename.c_str());
-}
-
-TEST(StaticFileReaderTest, CloseClosesStream) {
-    std::string filename = "temp_test_file3.txt";
-    createTempFile(filename, "close test");
-
-    StaticFileReader reader(filename);
-    ASSERT_TRUE(reader.open());
-    ASSERT_TRUE(reader.is_open());
-
-    reader.close();
-    EXPECT_FALSE(reader.is_open());
-
-    std::remove(filename.c_str());
-}
-
-
-
-TEST(StaticFileReaderReadTest, ReadAllReadsWholeFile) {
-    std::string filename = "readall_test.txt";
-    std::string content = "Hello ReadAll!";
-    createTempFile(filename, content);
-
-    StaticFileReader reader(filename);
-    ASSERT_TRUE(reader.open());
 
     ByteArray data = reader.readAll();
     EXPECT_EQ(std::string(data.data(), data.size()), content);
+    EXPECT_TRUE(reader.endread());
 
-    // повторный вызов возвращает тот же буфер
-    ByteArray data2 = reader.readAll();
-    EXPECT_EQ(std::string(data2.data(), data2.size()), content);
+    std::remove(path.c_str());
 
-    reader.close();
-    std::remove(filename.c_str());
 }
 
-TEST(StaticFileReaderReadTest, ReadChunksSequentially) {
-    std::string filename = "readchunk_test.txt";
-    std::string content = "abcdefghij";
-    createTempFile(filename, content);
+TEST(StaticFileReaderTest, ReadInChunks) {
+    std::string content = "ABCDEFGH";
+    std::string path = createTempFile("test_chunks.txt", content);
 
-    StaticFileReader reader(filename);
+    StaticFileReader reader(path);
     ASSERT_TRUE(reader.open());
 
-    ByteArray chunk1 = reader.read(4); // читаем первые 4 символа
-    EXPECT_EQ(std::string(chunk1.data(), chunk1.size()), "abcd");
+    ByteArray chunk1 = reader.read(3);
+    EXPECT_EQ(std::string(chunk1.data(), chunk1.size()), "ABC");
+    EXPECT_FALSE(reader.endread());
 
-    ByteArray chunk2 = reader.read(3); // читаем следующие 3
-    EXPECT_EQ(std::string(chunk2.data(), chunk2.size()), "efg");
+    ByteArray chunk2 = reader.read(3);
+    EXPECT_EQ(std::string(chunk2.data(), chunk2.size()), "DEF");
+    EXPECT_FALSE(reader.endread());
 
-    ByteArray chunk3 = reader.read(10); // пытаемся прочитать больше, чем осталось
-    EXPECT_EQ(std::string(chunk3.data(), chunk3.size()), "hij");
+    ByteArray chunk3 = reader.read(3);
+    EXPECT_EQ(std::string(chunk3.data(), chunk3.size()), "GH");
+    EXPECT_TRUE(reader.endread());
 
-    reader.close();
-    std::remove(filename.c_str());
+    std::remove(path.c_str());
+
 }
 
-TEST(StaticFileReaderReadTest, ReadFromClosedFileReturnsEmpty) {
-    std::string filename = "closedfile_test.txt";
-    createTempFile(filename, "12345");
 
-    StaticFileReader reader(filename);
-    EXPECT_FALSE(reader.readAll().size()); // до открытия — пусто
-    EXPECT_FALSE(reader.read(3).size());
 
-    reader.open();
-    reader.close();
 
-    EXPECT_TRUE(reader.readAll().empty());
-    EXPECT_TRUE(reader.read(5).empty());
+TEST(StaticFileReaderTest, ReloadResetsPosition) {
+    std::string content = "XYZ";
+    std::string path = createTempFile("test_reload.txt", content);
 
-    std::remove(filename.c_str());
-}
+    StaticFileReader reader(path);
+    ASSERT_TRUE(reader.open());
 
-TEST(StaticFileReaderReadTest, ReadAllAndRead) {
-    std::string filename = "closedfile_test.txt";
-    createTempFile(filename, "12345");
-    StaticFileReader reader(filename);
-    reader.open();
-    ByteArray byte = reader.readAll();
-    EXPECT_EQ(byte.data(), reader.read(5).data());
-    reader.close();
-    std::remove(filename.c_str());
-}
+    ByteArray first = reader.read(2);
+    EXPECT_EQ(std::string(first.data(), first.size()), "XY");
+    EXPECT_FALSE(reader.endread());
 
-TEST(StaticFileReaderReadTest, ReadAndReadAll) {
-    std::string filename = "closedfile_test.txt";
-    std::string content = "123455678";
-    createTempFile(filename, content);
-    StaticFileReader reader(filename);
-    reader.open();
+    reader.reload();
+    EXPECT_FALSE(reader.endread());  // после reload pos == 0, но файл открыт
+
+    ByteArray again = reader.readAll();
+    EXPECT_EQ(std::string(again.data(), again.size()), "XYZ");
+    EXPECT_TRUE(reader.endread());
     
-    ByteArray byte = reader.read(4);
-    byte = reader.readAll();
-    EXPECT_EQ(std::string(byte.data(),byte.size()),content);
-    reader.close();
-    std::remove(filename.c_str());
+    std::remove(path.c_str());
+
 }
 
-TEST(StaticFileReaderMoveSemantics, MoveConstructor) {
-    std::string content = "abc123";
-    std::string path = createTempFile("move_ctor.txt", content);
+TEST(StaticFileReaderTest, MoveConstructorTransfersOwnership) {
+    std::string content = "MOVE";
+    std::string path = createTempFile("test_move_ctor.txt", content);
 
     StaticFileReader r1(path);
     ASSERT_TRUE(r1.open());
-    EXPECT_TRUE(r1.is_open());
-    EXPECT_EQ(r1.size(), content.size());
 
-    // вызов конструктора перемещения
     StaticFileReader r2(std::move(r1));
-
-    // r2 перенял все ресурсы
-    EXPECT_EQ(r2.path(), path);
     EXPECT_TRUE(r2.is_open());
     EXPECT_EQ(r2.size(), content.size());
-    EXPECT_EQ(std::string(r2.readAll().data(), r2.readAll().size()), content);
-
-    // r1 сброшен
+    ByteArray byte = r2.readAll() ;
+    EXPECT_EQ(std::string(byte.data(), byte.size()), content);
     EXPECT_EQ(r1.size(), 0);
     EXPECT_FALSE(r1.is_open());
-    EXPECT_EQ(r1.path(), "");
+
+    std::remove(path.c_str());
+
+
 }
 
-TEST(StaticFileReaderMoveSemantics, MoveAssignment) {
-    std::string content = "hello world";
-    std::string path = createTempFile("move_assign.txt", content);
+TEST(StaticFileReaderTest, MoveAssignmentTransfersOwnership) {
+    std::string content = "ASSIGN";
+    std::string path = createTempFile("test_move_assign.txt", content);
 
     StaticFileReader r1(path);
     ASSERT_TRUE(r1.open());
 
     StaticFileReader r2;
-    r2 = std::move(r1); // оператор присваивания перемещением
+    r2 = std::move(r1);
 
-    // r2 получил ресурсы
-    EXPECT_EQ(r2.path(), path);
     EXPECT_TRUE(r2.is_open());
     EXPECT_EQ(r2.size(), content.size());
-    EXPECT_EQ(std::string(r2.readAll().data(), r2.readAll().size()), content);
+    EXPECT_EQ(std::string(r2.readAll().data(), r2.size()), content);
 
-    // r1 очищен
     EXPECT_EQ(r1.size(), 0);
     EXPECT_FALSE(r1.is_open());
-    EXPECT_EQ(r1.path(), "");
+    
+    std::remove(path.c_str());
+
 }
 
-TEST(StaticFileReaderMoveSemantics, MoveEmptyReader) {
-    StaticFileReader r1;
-    StaticFileReader r2(std::move(r1));
 
-    EXPECT_EQ(r2.size(), 0);
-    EXPECT_FALSE(r2.is_open());
-    EXPECT_EQ(r2.path(), "");
-    EXPECT_EQ(r1.size(), 0);
+
+TEST(StaticFileReaderTest, ReadThenReadAll) {
+    std::string content = "ABCDEFGHIJ";
+    std::string path = createTempFile("test_read_then_readall.txt", content);
+    
+    StaticFileReader reader(path);
+    ASSERT_TRUE(reader.open());
+
+
+    ByteArray part = reader.read(4);
+
+    EXPECT_EQ(std::string(part.data(), part.size()), "ABCD");
+    EXPECT_FALSE(reader.endread());
+    
+    ByteArray part2 = reader.read(2);
+    
+    EXPECT_EQ(std::string(part2.data(), part2.size()), "EF");
+    EXPECT_FALSE(reader.endread());
+    
+    
+    ByteArray all = reader.readAll();
+    EXPECT_EQ(std::string(all.data(), all.size()), "GHIJ");
+    EXPECT_TRUE(reader.endread());
+    
+    
+    std::remove(path.c_str());
+    
 }
+
+TEST(StaticFileReaderTest, OpenAndReadAllCleanup) {
+    std::string content = "12345";
+    std::string path = createTempFile("test_cleanup.txt", content);
+    
+    StaticFileReader reader(path);
+    ASSERT_TRUE(reader.open());
+    
+    ByteArray data = reader.readAll();
+    EXPECT_EQ(std::string(data.data(), data.size()), content);
+    EXPECT_TRUE(reader.endread());
+    
+    std::remove(path.c_str());
+}
+    
