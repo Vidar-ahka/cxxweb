@@ -6,6 +6,7 @@ namespace CxxWeb
 
     StaticFileReader::StaticFileReader()
     {
+     
         stream = std::make_unique<std::ifstream>();
     }    
     StaticFileReader::StaticFileReader(std::string & file_path) : StaticFileReader()
@@ -31,7 +32,6 @@ namespace CxxWeb
     {
         pos   = other.pos;
         size_ = other.size_;
-        data      = std::move(other.data);
         file_path = std::move(other.file_path);
         stream    = std::move(other.stream);
         
@@ -57,7 +57,6 @@ namespace CxxWeb
             stream->seekg(0,std::ios::end);
             size_ = stream->tellg();
             stream->seekg(pos, std::ios::beg);
-            data.reserve(size_+1);
             return stream->is_open();
         }
         catch(std::exception & e)
@@ -80,28 +79,10 @@ namespace CxxWeb
         }
         return true;
     }
-
-
-  
-        
-
-
     ByteArray StaticFileReader::readAll()
     {
-        
-        if(!is_open())
-        {
-            return ByteArray();
-        }
-        if(data.size()<size_)
-        {
-            int t = data.size();
-            data.resize(size_);
-            stream->read(const_cast<char*>(data.data()+t),size_);
-            pos = 0;
-        }
-
-        return data;
+     
+        return read(size_);
     } 
     
     ByteArray StaticFileReader::read(size_t size)
@@ -112,23 +93,30 @@ namespace CxxWeb
         {
             return tmp;
         }
-        if(data.size() < size_)
-        {
-          
-            tmp.resize(size);
-            stream->read(const_cast<char*>(tmp.data()),size);
-            tmp.resize(stream->gcount());
-            data.append(tmp);
-        }
-        else 
-        {
-            tmp =  data.copy(pos,pos+size);
-        }
-        
-        pos =  pos+size >= size_ ? 0 : pos+size;
+        size = std::min(size,size_-pos);
+        tmp.resize(size);
+        stream->read(const_cast<char*>(tmp.data()),size);
+        tmp.resize(stream->gcount());
+        pos =  pos+tmp.size();
         return tmp;
     } 
-    
+
+    void  StaticFileReader::reload()
+    {
+        pos = 0;
+        if(is_open())
+        {
+            close();
+            open();
+        }
+    }
+
+    bool StaticFileReader::endread() 
+    {
+     
+        return  !stream ||  pos >= size_;
+    }
+        
     
 
         
