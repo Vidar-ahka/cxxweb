@@ -59,7 +59,27 @@ namespace CxxWeb
         
 
     }
-   
+    ByteArray HTMLTemplateKey::get(std::unordered_map<std::string , std::string > & keys)
+    {
+        if(size_data ==  0)
+        {
+            return ByteArray();
+        }
+        ByteArray byte;
+        byte.reserve(size_data*2);
+        for(auto & it : nodes_list)
+        {
+            if(it.is_key)
+            {
+                byte.append(keys[it.key].data());
+            }   
+            else
+            {
+                byte.append(it.data);
+            }
+        }
+        return byte;
+    }
     std::pair<int,int> HTMLTemplateKey::valid_key(std::string_view & str, int open , int close)
     {
        int count = 0;
