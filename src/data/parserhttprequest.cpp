@@ -64,14 +64,19 @@ void    ParserHTTPRequest::parse(ByteArray data)
     parse_main_data();
 }
 
-std::string    ParserHTTPRequest::getMethod() const
+std::string_view    ParserHTTPRequest::getMethod() const
 {
     return method;
 }
-std::string    ParserHTTPRequest::getVersion() const
+std::string_view    ParserHTTPRequest::getVersion() const
 {
     return version;
 }
+std::string_view   ParserHTTPRequest::getPath() const 
+{
+    return path;
+}
+    
 std::vector<std::pair<std::string_view,std::string_view>> & ParserHTTPRequest::getArgument() 
 {
     return this->argument;
@@ -108,8 +113,13 @@ void ParserHTTPRequest::parse_main_data()
     std::string_view str(data.data(),data.size());
     size_t i =0;
     auto skip_space = [&](){while(i<str.size() && str[i]==' ')++i;};
-    auto  read_str = [&](std::string & result, std::function<bool(char)>  fun)
-    {while(i<str.size()&& !fun(str[i]))   result.push_back(str[i++]);};
+    auto  read_str = [&](std::string_view & result, std::function<bool(char)>  fun)
+    {
+        size_t beg = i;
+        while(i<str.size()&& !fun(str[i]))i++;
+        result = std::string_view(data.data()+beg,i-beg);
+        
+    };
     skip_space();
     read_str(method,[](char c)->bool
     {return  c == ' ' ;});

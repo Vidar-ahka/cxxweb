@@ -22,8 +22,11 @@ public:
     
     void    parse(const std::string& data) override ;
     void    parse(ByteArray data) override;
-    std::string    getMethod()  const;
-    std::string    getVersion() const ;
+    std::string_view    getMethod()  const;
+    std::string_view    getVersion() const ;
+    std::string_view   getPath() const ;
+    
+    
     std::vector<std::pair<std::string_view,std::string_view>>   & getArgument()  ;
     
 
@@ -32,9 +35,9 @@ private:
     void parse_main_data();
     
 
-    std::string method;
-    std::string version;
-    std::string path;
+    std::string_view method;
+    std::string_view version;
+    std::string_view path;
     std::vector<std::pair<std::string_view,std::string_view>> argument;
     
     ByteArray data;
