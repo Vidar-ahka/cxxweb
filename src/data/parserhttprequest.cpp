@@ -63,7 +63,54 @@ std::string_view ParserHTTPRequest::get(const std::string & key,std::string sepa
 void ParserHTTPRequest::parse_main_data()
 {
 
+    std::string_view str(data.data(),data.size());
+    size_t i =0;
+    auto skip_space = [&](){while(i<str.size() && str[i]==' ')++i;};
+    auto  read_str = [&](std::string & result, std::function<bool(char)>  fun)
+    {while(i<str.size()&& !fun(str[i]))   result.push_back(str[i++]);};
+    skip_space();
+    read_str(method,[](char c)->bool
+    {return  c == ' ' ;});
+
+    skip_space();
+    read_str(path,[](char c)->bool 
+    { return c=='?' ||c==' ' ;});
+     
    
+    if(i<str.size()&&str[i]=='?')
+    {
+        size_t beg = ++i;
+        size_t eq = i;
+        while(i<str.size() && str[i]!=' ')
+        {
+            if(str[i]=='=')
+            {
+                eq = i;
+            }
+            else if(str[i]=='&')
+            {
+                if(eq!= std::string_view::npos)
+                {
+                    this->argument .push_back(
+                    {std::string_view(str.data()+beg,eq-beg), 
+                    std::string_view(str.data()+eq+1 ,i-eq-1)});
+                }
+                beg = i+1;
+                eq = std::string::npos;
+            }
+            ++i;
+        }
+        if(eq != std::string::npos)
+        {
+            this->argument .push_back({std::string_view(str.data()+beg,eq-beg), 
+            std::string_view(str.data()+eq+1 ,i-eq-1)});           
+        }
+    }  
+    skip_space();
+    
+    read_str(version,[](char c)->bool
+    { return std::isspace(c);});
+     
 
 
 
