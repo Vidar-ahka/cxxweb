@@ -11,6 +11,48 @@ ParserHTTPRequest::ParserHTTPRequest(ByteArray data)
     this->data = data;
     parse_main_data();
 }
+ParserHTTPRequest::ParserHTTPRequest(ParserHTTPRequest & other)
+{
+    data = other.data;
+    path = other.path;
+    method = other.method;
+    argument = other.argument;
+
+}
+ParserHTTPRequest::ParserHTTPRequest(ParserHTTPRequest && other)
+{
+   
+    data = std::move(other.data);
+    path = std::move(other.path);
+    method = std::move(other.method);
+    argument = std::move(other.argument);
+}
+ParserHTTPRequest &  ParserHTTPRequest::operator=(ParserHTTPRequest & other)
+{
+    if(this ==  &other)
+    {
+        return *this;
+    }
+    data = other.data;
+    path = other.path;
+    method = other.method;
+    argument = other.argument;
+    return *this;
+}
+ParserHTTPRequest &  ParserHTTPRequest::operator=(ParserHTTPRequest && other)
+{
+    if(this ==  &other)
+    {
+        return *this;
+    }
+    data = std::move(other.data);
+    path = std::move(other.path);
+    method = std::move(other.method);
+    argument = std::move(other.argument);
+    return *this;
+}
+    
+
 void    ParserHTTPRequest::parse(const std::string& data) 
 {
     this->data.write(data.c_str());

@@ -12,7 +12,14 @@ public:
     ParserHTTPRequest() =default;
     ~ParserHTTPRequest() = default;
     
+    
     ParserHTTPRequest(ByteArray data);
+    ParserHTTPRequest(ParserHTTPRequest & other);
+    ParserHTTPRequest(ParserHTTPRequest && other);
+    ParserHTTPRequest &  operator=(ParserHTTPRequest & other);
+    ParserHTTPRequest &  operator=(ParserHTTPRequest && other);
+    
+    
     void    parse(const std::string& data) override ;
     void    parse(ByteArray data) override;
     std::string    getMethod();
