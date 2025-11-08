@@ -64,15 +64,15 @@ void    ParserHTTPRequest::parse(ByteArray data)
     parse_main_data();
 }
 
-std::string    ParserHTTPRequest::getMethod()
+std::string    ParserHTTPRequest::getMethod() const
 {
     return method;
 }
-std::string    ParserHTTPRequest::getVersion()
+std::string    ParserHTTPRequest::getVersion() const
 {
     return version;
 }
-std::vector<std::pair<std::string_view,std::string_view>> & ParserHTTPRequest::getArgument()
+std::vector<std::pair<std::string_view,std::string_view>> & ParserHTTPRequest::getArgument() 
 {
     return this->argument;
 }

@@ -22,9 +22,9 @@ public:
     
     void    parse(const std::string& data) override ;
     void    parse(ByteArray data) override;
-    std::string    getMethod();
-    std::string    getVersion();
-    std::vector<std::pair<std::string_view,std::string_view>>   & getArgument();
+    std::string    getMethod()  const;
+    std::string    getVersion() const ;
+    std::vector<std::pair<std::string_view,std::string_view>>   & getArgument()  ;
     
 
     std::string_view get(const std::string & key,std::string separator = ":") override;
