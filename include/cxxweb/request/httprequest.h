@@ -1,7 +1,7 @@
 #ifndef HTTPREQUEST_H
 #define HTTPREQUEST_H
 #include"string"
-#include"cxxweb/request/irequest.h"
+#include"irequest.h"
 #include"cxxweb/data/bytearray.h"
 #include"unordered_map"
 #include"memory"
@@ -19,16 +19,25 @@ public:
     void addData(const std::string &  data) noexcept;
     
     ~HTTPRequest() = default;
-    std::string getMethod()  const override
+    std::string getMethod()  const override;
     std::string getPath() const override ;
     std::string getVersion() const override;
+
     std::string getHeader(std::string key) override ;
-    bool hasHeader( std::string key) const override;
+    bool hasHeader( std::string key) const override ;
+    
+ 
 
 private:
     mutable std::unique_ptr<ParserHTTPRequest> parser;
+    mutable std::unordered_map<std::string,std::string> META;
+
+    
     
 };
 
 }
 #endif
+
+
+
