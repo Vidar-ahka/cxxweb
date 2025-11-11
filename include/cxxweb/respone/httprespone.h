@@ -21,8 +21,8 @@ public:
     
     
     ByteArray  getData() noexcept override;
+    const std::string &   getHeaders() noexcept;
     
-
     void setVersion(std::string version) noexcept;
 
     void setStatusMessage(std::string status) noexcept;

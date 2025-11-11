@@ -36,6 +36,20 @@ ByteArray  HTTPRespone::getData() noexcept
 {
     return data;
 }
+ const std::string &   HTTPRespone::getHeaders() noexcept
+ {
+     if(new_data)
+     {      
+        head.clear();
+        head += version + " " + statusCode + " " + statusMessage + "\r\n" +
+        "Content-Type: " + content_type + "\r\n" + 
+        "Content-Length: " + std::to_string(data.size()) + "\r\n" +
+        "Connection: keep-alive\r\n" +
+        "\r\n"; 
+        new_data = false;
+    }   
+    return head;    
+}
 
 void HTTPRespone::setVersion(std::string version) noexcept
 {
