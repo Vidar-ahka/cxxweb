@@ -11,6 +11,7 @@
 #include"unistd.h"
 #include"sslcontext.h"
 #include"iserver.h"
+#include"sslconnectionfactory.h"
 
 namespace CxxWeb
 {
@@ -24,13 +25,15 @@ public:
     virtual ~HttpsServer();
     bool start(uint16_t port) override;
     bool stop() override;
-    
 protected:
     bool init_socket();
 
     int socket_m;
     uint16_t port ;
     sockaddr_in sa_serv;
+    fd_set readfds; 
+    std::shared_ptr<IConnectionFactory> con_factory;
+
  
 };
 

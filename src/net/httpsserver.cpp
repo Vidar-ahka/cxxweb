@@ -18,14 +18,18 @@ namespace CxxWeb
     {
         this->port = port;
         ssl->init();
-        init_socket();
+        if(!init_socket())
+        {
+            return  false;
+        }
+        con_factory = std::make_shared<SSLConnectionFactory>(socket_m,ssl->getCTX());
+        FD_ZERO(&readfds);
+        FD_SET(socket_m, &readfds);
+        struct timeval timeout;
         return true;
-
     }
     
-    bool HttpsServer::stop(
-        
-    )
+    bool HttpsServer::stop()
     {   
         close(socket_m);
         return true;
