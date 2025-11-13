@@ -10,7 +10,7 @@ namespace CxxWeb
         virtual ~IParser() = default;
         virtual void    parse(const std::string& data) = 0;
         virtual void    parse(ByteArray data)          = 0 ;
-        virtual std::string_view get(const std::string & key,std::string separator = ":");
+        virtual std::string_view get(const std::string & key,std::string separator) = 0;
     };   
 }
 #endif
