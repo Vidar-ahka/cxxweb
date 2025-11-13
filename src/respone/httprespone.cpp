@@ -14,17 +14,17 @@ HTTPRespone::HTTPRespone(ByteArray data) noexcept: HTTPRespone()
 HTTPRespone::HTTPRespone(ByteArray data,std::string content_type) noexcept : HTTPRespone()
 {
     this->data = data;
-    this->content_type = content_type;
+    this->content_type = std::move(content_type);
 }
 HTTPRespone::HTTPRespone(ByteArray data,std::string content_type,std::string version,
     std::string statusCode, std::string statusMessage) noexcept
 {
     new_data = true;
     this->data = data;
-    this->content_type = content_type;
-    this->statusCode   = statusCode;
-    this->statusMessage = statusMessage;
-    this->version = version;
+    this->content_type = std::move(content_type);
+    this->statusCode   = std::move(statusCode);
+    this->statusMessage = std::move(statusMessage);
+    this->version = std::move(version);
 }
 void HTTPRespone::setData(ByteArray  data) noexcept 
 {
