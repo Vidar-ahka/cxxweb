@@ -4,12 +4,13 @@ namespace CxxWeb
 {
     HTMLTemplateKey::HTMLTemplateKey(ByteArray data_html)
     {
-        
+        setDataHtml(data_html);
     }
     void HTMLTemplateKey::setDataHtml(ByteArray data_html)
     {
         if(data_html.empty())
         {
+
             return  ;
         }
         int  beg = 0;
@@ -53,20 +54,16 @@ namespace CxxWeb
             html.is_key = false;
             nodes_list.push_back(html);
         }
-        
-
-        
-        
-
     }
     ByteArray HTMLTemplateKey::get(std::unordered_map<std::string , std::string > & keys)
     {
         if(size_data ==  0)
         {
+           
             return ByteArray();
         }
         ByteArray byte;
-        byte.reserve(size_data*2);
+        byte.reserve(size_data+(size_data/3));
         for(auto & it : nodes_list)
         {
             if(it.is_key)
