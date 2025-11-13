@@ -14,6 +14,11 @@ public:
     HTTPRespone(ByteArray data,std::string content_type) noexcept;
     HTTPRespone(ByteArray data,std::string content_type,std::string version,std::string statusCode, 
     std::string statusMessage) noexcept;
+    HTTPRespone(const HTTPRespone & other) = default;
+    HTTPRespone(HTTPRespone && other) = default;
+    HTTPRespone &  operator=( const HTTPRespone &other) = default;
+    HTTPRespone &  operator=(HTTPRespone && other) = default;
+    
     ~HTTPRespone() = default;
     
     
