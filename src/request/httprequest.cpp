@@ -91,7 +91,7 @@ namespace CxxWeb{
         auto it = META.find(key);
         if(it!=META.end())
         {
-            return (*it).second;
+            return it->second;
         }
         else if(!parser) 
         {

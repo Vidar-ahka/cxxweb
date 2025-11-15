@@ -22,7 +22,7 @@ std::string FileConntentTypeRegister::get(std::string & path) const
     {
         return "*/*";
     }
-    return (*it).second;
+    return it->second;
 
 }
    
