@@ -10,6 +10,7 @@ public:
     virtual std::string getMethod() const = 0;
     virtual std::string getPath() const = 0;
     virtual std::string getHeader(std::string key) = 0;
+    virtual std::string getVersion() const  = 0;
     virtual bool hasHeader(      std::string key) const = 0;
 };
 
