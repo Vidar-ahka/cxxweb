@@ -2,37 +2,52 @@
 #include"cxxweb/net/httpsserver.h"
 namespace CxxWeb
 {
-    HttpsServer::HttpsServer(std::string  path_cert,  std::string   path_private_key,  std::string  path_ca )
+    HttpsServer::HttpsServer(uint16_t port)
     {
-        ssl =  std::make_unique<SSLContext>();
-        ssl->set_mode(SSLMode::Server);
-        ssl->set_path_cert(path_cert);
-        ssl->set_path_private_key(path_private_key);
-        ssl->set_path_ca(path_ca);
+        this->port = port;
     }
     HttpsServer::~HttpsServer()
     {
         stop();
     }  
-    bool HttpsServer::start(uint16_t port) 
+    bool HttpsServer::start()
     {
-        this->port = port;
-        ssl->init();
         if(!init_socket())
         {
             return  false;
         }
-        con_factory = std::make_shared<SSLConnectionFactory>(socket_m,ssl->getCTX());
         FD_ZERO(&readfds);
         FD_SET(socket_m, &readfds);
-        struct timeval timeout;
         return true;
+    } 
+    void HttpsServer::setTimeout(time_t  timeout)
+    {
+        timeout_val = timeout;
     }
-    
+    bool HttpsServer::accept()
+    {
+        timeout.tv_sec  = timeout_val;
+        timeout.tv_usec = 0;
+        return select(socket_m+1,&readfds,nullptr,nullptr,&timeout)>0;
+    }
+    bool HttpsServer::start(uint16_t port) 
+    {
+        this->port = port;
+        return start();
+    }
     bool HttpsServer::stop()
     {   
         close(socket_m);
         return true;
+    }
+    int  HttpsServer::getSocket() const 
+    {
+        return socket_m;
+    }
+ 
+    bool  HttpsServer::isValid() const 
+    {
+        return valid&& socket_m>0;
     }
 
 
@@ -62,7 +77,7 @@ namespace CxxWeb
             std::cout<<"!listen \n";
             return false;
         }
-
+        valid = true;
         return true;
 
 

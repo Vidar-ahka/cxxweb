@@ -19,21 +19,27 @@ namespace CxxWeb
 class HttpsServer  : public IServer
 {
 public:
-    
-    HttpsServer(std::string  path_cert,  std::string   path_private_key,  std::string  path_ca = "");
-
+    HttpsServer()= default;
+    HttpsServer(uint16_t port);
     virtual ~HttpsServer();
+    void setTimeout(time_t timeout);
+    bool accept();
     bool start(uint16_t port) override;
+    bool start() override;
+    
+    int  getSocket() const override;
+    bool isValid() const override;
     bool stop() override;
 protected:
     bool init_socket();
-
     int socket_m;
     uint16_t port ;
     sockaddr_in sa_serv;
+    bool valid = false;
+    
     fd_set readfds; 
-    std::shared_ptr<IConnectionFactory> con_factory;
-
+    struct timeval timeout;
+    time_t  timeout_val{100};
  
 };
 
