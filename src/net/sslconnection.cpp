@@ -39,13 +39,11 @@ namespace CxxWeb
     }   
     bool SSLConnection::start()
     {
-
-
-        try
-        {   
+ 
             if(!ctx )
             {
-                  throw std::runtime_error("SSL context is null");
+                std::cout << "SSL context is null";
+                return false;
             }
             
             len = sizeof(s_addr);
@@ -53,7 +51,8 @@ namespace CxxWeb
         
             if (socket_ < 0) 
             {
-                 throw std::runtime_error("Accept failed, error code: " + std::to_string(errno));
+                std::cout <<"Accept failed, error code: " <<  std::to_string(errno)<<'\n';
+                return false;
             }
 
             ssl_ = SSL_new(ctx);
@@ -61,25 +60,22 @@ namespace CxxWeb
            
             if(!ssl_)
             {
-                throw std::runtime_error("SSL_new failed");
+                std::cout <<"SSL_new failed";
+                return false;
             }
             if (SSL_accept(ssl_) <= 0) 
             {
                 int ssl_error = SSL_get_error(ssl_, -1);
-                throw std::runtime_error("SSL_accept failed, error code: " + std::to_string(ssl_error));
+                std::cout << "SSL_accept failed, error code: " << ssl_error <<'\n';
+                return false;
             } 
-       
+            return true;
+    }       
         
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-            return false;
-        }
-        return true;
+        
         
 
-    }  
+     
     bool SSLConnection::stop()
     {
         if(ssl_)
@@ -95,90 +91,59 @@ namespace CxxWeb
 
     ByteArray  SSLConnection::readAll() 
     {
-        try
+        if(!check_fun_try("readAll"))
         {
-            check_fun_try("readAll");
-            
-            ByteArray byte;
-            byte.reserve(8193);
-            int count = 0 ;
-            do
-            {
-                char buffer[4096];
-                count  = SSL_read(ssl_,buffer,4096);
-                byte.append(buffer);
-
-            }while(count>=4096);
-            return byte;
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
             return ByteArray();
         }
-        
+        ByteArray byte;
+        byte.reserve(8193);
+        int count = 0 ;
+        do
+        {
+            char buffer[4096];
+            count  = SSL_read(ssl_,buffer,4096);
+            byte.append(buffer);
+
+        }while(count>=4096);
+        return byte;
     }
     ByteArray  SSLConnection::read(size_t read_size) 
     {
-        try
+        
+       
+        if(!check_fun_try("read")&&read_size == 0)
         {
-            check_fun_try("read");
-            if(read_size == 0)
-            {
-                return ByteArray();
-            }
-            ByteArray byte;
-            byte.resize(read_size);
-            int  count = SSL_read(ssl_,const_cast<char*>(byte.data()),read_size);
-            byte.resize(count);        
-            
-            return byte;        
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
             return ByteArray();
         }
+        ByteArray byte;
+        byte.resize(read_size);
+        int  count = SSL_read(ssl_,const_cast<char*>(byte.data()),read_size);
+        byte.resize(count);        
+            
+        return byte;        
+      
         
        
     }
 
     size_t  SSLConnection::write(ByteArray byte) 
-    {
-        try
+    {    
+        if(!check_fun_try("write")&&byte.empty())
         {
-            check_fun_try("write");
-            
-            if(byte.empty())
-            {
                return 0;
-            }
-            int count =   SSL_write(ssl_,byte.data(),byte.size());
-            return count;
         }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-        }
+        int count =   SSL_write(ssl_,byte.data(),byte.size());
+        return count;
+       
     }
     size_t  SSLConnection::write(const std::string & str)
     {
-        try
+        if(!check_fun_try("write")&&str.empty())
         {
-            check_fun_try("write");
-
-            if(str.empty())
-            {
                return 0;
-            }
-            int count =   SSL_write(ssl_,str.c_str(),str.size());
-            return count;
         }
-        catch(const std::exception& e)
-         {
-            std::cerr << e.what() << '\n';
-        }
-        
+        int count =   SSL_write(ssl_,str.c_str(),str.size());
+        return count;        
     }
     
     int  SSLConnection::getSocket() const  
@@ -195,17 +160,20 @@ namespace CxxWeb
         && SSL_get_fd(ssl_) > -1 && SSL_is_init_finished(ssl_);
     }
 
-    void SSLConnection::check_fun_try(std::string  name_fun)
+    bool SSLConnection::check_fun_try(std::string  name_fun)
     {
         if(socket_<0)
         {
-            throw std::runtime_error("SSLConnection::" + name_fun+ " called on invalid socket < 0 \n"); 
+            std::cout <<"SSLConnection::" + name_fun+ " called on invalid socket < 0 \n"; 
+            return false;
 
         }
         if(!ssl_valid())
         {
-            throw std::runtime_error("SSLConnection::"+name_fun+" called on invalid SSL connection\n");
+            std::cout <<"SSLConnection::"+name_fun+" called on invalid SSL connection\n";
+            return false;
         }
+        return true;
     }
        
     void SSLConnection::move_from(SSLConnection&& other)
