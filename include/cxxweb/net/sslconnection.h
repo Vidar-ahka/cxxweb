@@ -38,7 +38,7 @@ namespace CxxWeb
     
     protected:
        bool ssl_valid() const ;
-       void check_fun_try(std::string  name_fun);
+       bool check_fun_try(std::string  name_fun);
        void move_from(SSLConnection&& other);
        
 
