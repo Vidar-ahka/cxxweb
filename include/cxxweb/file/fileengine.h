@@ -24,7 +24,7 @@ public:
 
     
     ByteArray getTemplate(const std::string & path);
-    ByteArray getTemlate(const std::string & path,std::unordered_map<std::string , std::string> & keys);
+    ByteArray getTemplate(const std::string & path,std::unordered_map<std::string , std::string> & keys);
     ByteArray getStatic(const std::string & path);
     
 private:

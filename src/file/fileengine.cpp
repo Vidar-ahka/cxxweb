@@ -58,7 +58,7 @@ ByteArray FileEngine::getTemplate(const std::string & path)
     return it->second;
    
 }
-ByteArray FileEngine::getTemlate(const std::string & path,std::unordered_map<std::string , std::string> & keys)
+ByteArray FileEngine::getTemplate(const std::string & path,std::unordered_map<std::string , std::string> & keys)
 {
     if(path.empty())
     {
