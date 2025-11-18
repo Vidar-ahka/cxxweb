@@ -16,35 +16,31 @@ namespace CxxWeb
     {
         return check();
     }
-    bool SSLConnectionFactory::check() {
-
-        try
-        {  
+    bool SSLConnectionFactory::check() {  
             if(server_socket<0)
             {
-                throw std::runtime_error("server_socekt < 0");
+                std::cout <<"server_socekt < 0";
+                return false;
             }
             if (!ctx) {
-                throw std::runtime_error("SSL_CTX is null");
+                std::cout <<"SSL_CTX is null";
+                return false;
             }
             if (!SSL_CTX_get0_certificate(ctx)) {
-                throw std::runtime_error("SSL_CTX has no certificate loaded");
+                std::cout<<"SSL_CTX has no certificate loaded";
+                return false;
             }
             EVP_PKEY* pkey =  SSL_CTX_get0_privatekey(ctx);
             if (!pkey) {
-                throw std::runtime_error("SSL_CTX has no private key loaded");
+                std::cout <<"SSL_CTX has no private key loaded";
+                return false;
             }
 
             if (!SSL_CTX_check_private_key(ctx)) {
-                throw std::runtime_error("Private key does not match the certificate");
+                std::cout <<"Private key does not match the certificate";
+                return false;
             }
-        }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-        return false;
-    }
-    return true;
+        return true;
 }
 
 }
