@@ -29,6 +29,32 @@ bool App::start()
 }
 
 
+bool App::poll()
+{    
+    if(!con_factory || !server->accept())
+    {  
+        return false;
+    }
+    std::future<bool> futute = std::async(std::launch::async,&CxxWeb::App::handler_con,this);
+    return true;
+}
+bool App::handler_con()
+{
+    std::shared_ptr<IConnection> con = con_factory->create();
+    if(!con->start())
+    {
+ 
+        return false;
+    }
+    HTTPRequest request(con->readAll());
+    std::shared_ptr<HTTPRespone> respone =  router->get(request);
+    con->write(respone->getHeaders());
+    con->write(respone->getData());
+    return true;
+}
+
+
+
 
 void App::setPort(uint16_t port)
 {
