@@ -10,6 +10,26 @@ App::App()
     context =     std::make_shared<SSLContext>();
 
 }
+
+bool App::start()
+{
+    if(!server->start(port)&&!context->init())
+    {
+        return false;
+    }
+    socket = server->getSocket();
+    context->init();
+    con_factory= std::make_shared<SSLConnectionFactory> (socket,context->getCTX());
+    
+    if(!con_factory->is_valid())
+    {
+        return false;
+    }
+    return true;
+}
+
+
+
 void App::setPort(uint16_t port)
 {
     this->port = port;
@@ -39,6 +59,9 @@ void App::setTimeout(time_t  timeout)
 {
     server->setTimeout(timeout);
 }
+
+
+
 }
 
     
