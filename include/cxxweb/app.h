@@ -11,7 +11,7 @@
 #include"cxxweb/respone/httprespone.h"
 #include"cxxweb/request/httprequest.h"
 #include"cxxweb/net/sslconnectionfactory.h"
-
+#include"cxxweb/respone/httpresponerender.h"
 namespace CxxWeb
 {
 
@@ -29,14 +29,14 @@ public:
     void setTimeout(time_t  timeout);
     bool start();
     bool poll();
-    std::shared_ptr<HTTPRespone> renderTemplate(HTTPRequest & request,std::string path_file_template);
-    std::shared_ptr<HTTPRespone> renderTemplate(HTTPRequest & request,std::string path_file_template,std::unordered_map<std::string , std::string > & keys);
-    
+
+    std::shared_ptr<HTTPResponeRender> render;
 private:
     bool handler_con();
     std::shared_ptr<HttpsServer> server;
     std::shared_ptr<FileEngine> file_engine;
     std::shared_ptr<Router>  router;
+
     std::shared_ptr<SSLContext> context;
     std::shared_ptr<SSLConnectionFactory> con_factory;
     uint16_t port ;    

@@ -6,7 +6,8 @@ App::App()
 {
     server =      std::make_shared<HttpsServer>();
     file_engine = std::make_shared<FileEngine>();
-    router =      std::make_shared<Router>(file_engine);
+    render = std::make_shared<HTTPResponeRender>(file_engine);
+    router =      std::make_shared<Router>(render);
     context =     std::make_shared<SSLContext>();
 
 }
