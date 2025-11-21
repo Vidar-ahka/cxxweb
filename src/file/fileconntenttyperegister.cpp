@@ -6,7 +6,7 @@ namespace CxxWeb
 
 
 
-std::string FileConntentTypeRegister::get(std::string & path) const 
+std::string FileConntentTypeRegister::get(const std::string & path) const 
 {
     if(path.empty())
     {

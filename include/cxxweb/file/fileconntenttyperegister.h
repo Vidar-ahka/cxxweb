@@ -15,7 +15,7 @@ public:
     static FileConntentTypeRegister  var;
     return var;
    }
-   std::string get(std::string & path) const ;
+   std::string get(const std::string & path) const ;
 
    FileConntentTypeRegister(const FileConntentTypeRegister &) = delete;
    FileConntentTypeRegister(FileConntentTypeRegister &&) = delete;
