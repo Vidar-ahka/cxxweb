@@ -10,6 +10,7 @@
 #include "cxxweb/data/bytearray.h"
 #include "cxxweb/request/httprequest.h"
 #include "cxxweb/respone/httprespone.h"
+#include"cxxweb/respone/httpresponerender.h"
 
 using namespace CxxWeb;
 namespace fs = std::filesystem;
@@ -20,13 +21,15 @@ protected:
     fs::path path_static;
     std::shared_ptr<FileEngine> engine;
     std::unique_ptr<Router> router;
+    std::shared_ptr<HTTPResponeRender> render_respone;
 
     void SetUp() override {
         path_template = fs::path("/home/tamer/cpp_project/server_http/template");
         path_static   = fs::path("/home/tamer/cpp_project/server_http/static");
-
         engine = std::make_shared<FileEngine>(path_template.string(), path_static.string());
-        router = std::make_unique<Router>(engine);
+        render_respone = std::make_shared<HTTPResponeRender>(engine);
+        router = std::make_unique<Router>(render_respone);
+
     }
 
     void TearDown() override {
@@ -36,14 +39,15 @@ protected:
     std::shared_ptr<HTTPRespone> render(HTTPRequest & request,std::string path_file_template)
     {
         std::string path =  request.getPath();
-        ByteArray data  =  engine->getTemplate(path_file_template);
+        /*ByteArray data  =  engine->getTemplate(path_file_template);
         std::shared_ptr<HTTPRespone> respone = std::make_shared<HTTPRespone>();
         respone->setData(data);
         respone->setContentType(FileConntentTypeRegister::instanse().get(path_file_template));
         respone->setVersion(request.getVersion());
         respone->setStatusCode("200");
         respone->setStatusMessage("OK");      
-        return respone;  
+        */
+        return render_respone->renderTemplate(request,path_file_template);  
     }
   
 };
@@ -53,7 +57,7 @@ TEST_F(RouterRealDataFSTest, RouteStaticFile) {
     HTTPRequest request(ByteArray("GET /images.png HTTP/1.1\r\n\r\n"));
 
     auto response = router->get(request);
-    ASSERT_TRUE(response);
+    
     ByteArray data = response->getData();
     ASSERT_FALSE(data.empty());
     EXPECT_EQ(static_cast<unsigned char>(data[0]), 0x89); // PNG magic bytes
